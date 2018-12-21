@@ -84,7 +84,7 @@ def ceildiv(a, b):
     return int(math.ceil(a / float(b)))
 
 def split_by_seconds(filename, split_length, vcodec="copy", acodec="copy",
-                     extra="", video_length=None, **kwargs):
+                     extra="", dest=".", video_length=None, **kwargs):
     if split_length and split_length <= 0:
         print("Split length can't be 0")
         raise SystemExit
@@ -109,9 +109,11 @@ def split_by_seconds(filename, split_length, vcodec="copy", acodec="copy",
         else:
             split_start = split_length * n
 
+        fpath = filebase + "-" + str(n+1) + "-of-" + \
+                str(split_count) + "." + fileext
+        fpath = os.path.join(dest, fpath)
         split_args += ["-ss", str(split_start), "-t", str(split_length),
-                       filebase + "-" + str(n+1) + "-of-" + \
-                        str(split_count) + "." + fileext]
+                       fpath]
         print("About to run: "+" ".join(split_cmd+split_args))
         subprocess.check_output(split_cmd+split_args)
 
@@ -185,6 +187,13 @@ def main():
                       help = "Extra options for ffmpeg, e.g. '-e -threads 8'. ",
                       type = "string",
                       default = "",
+                      action = "store"
+                     )
+    parser.add_option("-d", "--dest",
+                      dest = "dest",
+                      help = "Destination",
+                      type = "string",
+                      default = "output",
                       action = "store"
                      )
     (options, args) = parser.parse_args()
